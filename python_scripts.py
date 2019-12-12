@@ -5,6 +5,23 @@ import sys
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 
+def extract_value_from_param_file(paramfile, key):
+    for line in paramfile.readlines():
+        line_key, value = line.split()
+        if key == line_key:
+            return value
+    raise KeyError("Nothing in {} named {}".format(paramfile.name, key))
+
+
+def param(key):
+    try:
+        with open("{}/params.txt".format(HERE)) as paramfile:
+            return extract_value_from_param_file(paramfile, key)
+    except (FileNotFoundError, KeyError):
+        with open("{}/default_params.txt".format(HERE)) as paramfile:
+            return extract_value_from_param_file(paramfile, key)
+
+
 def croplines(string, width='76'):
     width = int(width)
     lines = string.split("\n")
@@ -16,9 +33,11 @@ def croplines(string, width='76'):
         croppeds.append(cropped)
     return "\n".join(croppeds)
 
+
 def cropfile(string, width='76'):
     with open(string) as file:
         return croplines(file.read(), width)
+
 
 def envlist(*args):
     return croplines(subprocess.check_output("env").decode("utf-8"))
