@@ -42,28 +42,34 @@ def cropfile(string, width='76'):
 def envlist(*args):
     return croplines(subprocess.check_output("env").decode("utf-8"))
 
+def get_wat(directory, *args):
+    files = list(sorted(glob.glob("{}/*.bat".format(directory))))
+    names = [file.split("\\")[-1].split(".bat")[0] for file in files]
+    headers = []
+    for name, filename in zip(names, files):
+        with open(filename) as file:
+            header = "    " + file.readline()
+        headers.append(header)
+    max_name_len = max(len(name) for name in names)
+    summary = "".join([
+        "{}{}{}".format(name, " " * (max_name_len - len(name) + 1), header)
+        for name, header in zip(names, headers)
+    ])
+    return files, names, summary
 
 def wat(script=None, *args):
-    files = list(sorted(glob.glob("{}/*.bat".format(HERE))))
-    names = [file.split("\\")[-1].split(".bat")[0] for file in files]
+    files_g, names_g, summary_g = get_wat(HERE)
+    files_p, names_p, summary_p = get_wat(os.path.join(HERE, "personal"))
 
     if script is not None:
-        for name, filename in zip(names, files):
+        for name, filename in zip(names_g + names_p, files_g + files_p):
             if name == script:
                 with open(filename) as file:
                     return file.read()
         return "No script named {}".format(script)
+    else:
+        return "Batchit scripts:\n" + summary_g + "\nPersonal files:\n" + summary_p
 
-    headers = []
-    for name, filename in zip(names, files):
-        with open(filename) as file:
-            header = file.readline()
-        headers.append(header)
-    max_name_len = max(len(name) for name in names)
-    return "".join([
-        "{}{}{}".format(name, " " * (max_name_len - len(name) + 1), header)
-        for name, header in zip(names, headers)
-    ])
 
 if __name__ == "__main__":
     try:
