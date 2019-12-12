@@ -1,15 +1,34 @@
 import glob
 import os
+import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 
-def wat(args):
+def croplines(string, width='76'):
+    width = int(width)
+    lines = string.split("\n")
+    croppeds = []
+    for line in lines:
+        cropped = line[:width]
+        if cropped != line:
+            cropped += "..."
+        croppeds.append(cropped)
+    return "\n".join(croppeds)
+
+def cropfile(string, width='76'):
+    with open(string) as file:
+        return croplines(file.read(), width)
+
+def envlist(*args):
+    return croplines(subprocess.check_output("env").decode("utf-8"))
+
+
+def wat(script=None, *args):
     files = list(sorted(glob.glob("{}/*.bat".format(HERE))))
     names = [file.split("\\")[-1].split(".bat")[0] for file in files]
 
-    if args:
-        script = args[0]
+    if script is not None:
         for name, filename in zip(names, files):
             if name == script:
                 with open(filename) as file:
@@ -28,14 +47,17 @@ def wat(args):
     ])
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-
-    if args:
-        command, args = args[0], args[1:]
-        try:
-            func = globals()[command]
-        except KeyError:
-            print("No command named {}".format(command))
-        else:
-            result = func(args)
-            print(result)
+    try:
+        args = sys.argv[1:]
+        if args:
+            command, args = args[0], args[1:]
+            try:
+                func = globals()[command]
+            except KeyError:
+                print("No command named {}".format(command))
+            else:
+                result = func(*args)
+                print(result)
+    except Exception:
+        print("Called with argv: ", sys.argv)
+        raise
