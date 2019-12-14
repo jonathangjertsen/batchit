@@ -21,6 +21,17 @@ def param(key):
         with open("{}/default_params.txt".format(HERE)) as paramfile:
             return extract_value_from_param_file(paramfile, key)
 
+def setup(name):
+    return """
+from setuptools import setup, find_packages
+
+setup(
+    name='{}',
+    version='0.0.1',
+    description='',
+    packages=find_packages(exclude=["test"])
+)
+""".format(name)
 
 def croplines(string, width='76'):
     width = int(width)
