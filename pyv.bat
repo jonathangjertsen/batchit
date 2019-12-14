@@ -1,0 +1,2 @@
+:: Python version
+python --version

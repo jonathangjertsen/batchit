@@ -33,6 +33,7 @@ Current output of `wat`:
 * `pull`       :: git pull
 * `push`       :: git push
 * `py`         :: Defer to python_scripts
+* `pyv`        :: Python version
 * `shutup`     :: Shutup
 * `stfu`       :: Shut the fuck up
 * `sub`        :: Start sublime text in this directory
